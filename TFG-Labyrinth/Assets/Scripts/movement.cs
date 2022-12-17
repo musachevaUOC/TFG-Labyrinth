@@ -6,8 +6,13 @@ using UnityEngine.InputSystem;
 public class movement : MonoBehaviour
 {
 
-    public float vel = 2; // velocity of the character
+    private Player player;
+
     public Transform cam; // First person camera of the player
+    public GameObject projectile;
+
+    private float vel; // velocity of the character
+    private float LookSensitivity;
 
     private CharacterController characterController;
 
@@ -20,7 +25,11 @@ public class movement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        player = gameObject.GetComponent<Player>();
         characterController = gameObject.GetComponent<CharacterController>();
+
+        vel = player.speed; 
+        LookSensitivity = player.lookSensitivity;
 
         action_move_active = false;
         action_look_active = false;
@@ -37,7 +46,7 @@ public class movement : MonoBehaviour
     {
         if (action_move_active)
         {
-            characterController.SimpleMove(movement_direction * vel);
+            characterController.SimpleMove( movement_direction * vel);
         }
         if (action_look_active)
         {
@@ -52,7 +61,7 @@ public class movement : MonoBehaviour
         if(context.phase != InputActionPhase.Canceled)
         {
             Vector2 input = context.action.ReadValue<Vector2>();
-            movement_direction = Vector3.forward * input.y + Vector3.right * input.x;
+            movement_direction = transform.forward * input.y + transform.right * input.x;
             action_move_active = true;
 
         }
@@ -67,7 +76,7 @@ public class movement : MonoBehaviour
     {
         if (context.phase != InputActionPhase.Canceled)
         {
-            look_rotation = context.action.ReadValue<Vector2>();
+            look_rotation = context.action.ReadValue<Vector2>() * LookSensitivity;
             action_look_active = true;
 
         }
@@ -76,5 +85,21 @@ public class movement : MonoBehaviour
             look_rotation = Vector2.zero;
             action_look_active = false;
         }
+    }
+
+    public void fire(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Started)
+        {
+
+            Instantiate(projectile, transform.position + transform.forward * 0.8f, transform.rotation).SetActive(true);
+            
+        }
+        
+    }
+
+    public Vector3 getMovementVel()
+    {
+        return this.movement_direction*vel;
     }
 }
