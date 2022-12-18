@@ -6,6 +6,7 @@ using UnityEngine;
 public class LabrinthBuilder : MonoBehaviour
 {
     public GameObject wall;
+    public GameObject UI_wall;
     //public GameObject pilar;
     public GameObject enemySpawner;
     public GameObject coin;
@@ -14,32 +15,43 @@ public class LabrinthBuilder : MonoBehaviour
 
 
     public Transform player;
+    public Transform miniMapCamera;
 
     public int width = 4;
     public int height = 4;
 
     public int centerSize = 4;
+
     public int enemiesNumber = 4;
+    public int coinsNumber = 10;
+    public int keysNumber = 3;
 
     private float uom; //unit of mesure. Depends on size of wall
     private LabrinthEngine labrinthEngine;
+
+    //other adjustments
+    private float doorOffset = 4f;
 
     void buildOuterWalls()
     {
         for (int i = 0; i < width; i++){
             Instantiate(wall, new Vector3(0, uom / 2, i*uom+uom/2),Quaternion.Euler(0,0,0), transform);
+            Instantiate(UI_wall, new Vector3(0, uom / 2, i * uom + uom / 2), Quaternion.Euler(0, 0, 0), transform);
         }
         for (int i = 0; i < width; i++)
         {
             Instantiate(wall, new Vector3(uom*height, uom / 2, i * uom + uom / 2), Quaternion.Euler(0, 0, 0), transform);
+            Instantiate(UI_wall, new Vector3(uom * height, uom / 2, i * uom + uom / 2), Quaternion.Euler(0, 0, 0), transform);
         }
         for (int i = 0; i < height; i++)
         {
             Instantiate(wall, new Vector3(i * uom + uom / 2, uom / 2, 0), Quaternion.Euler(0, 90, 0), transform);
+            Instantiate(UI_wall, new Vector3(i * uom + uom / 2, uom / 2, 0), Quaternion.Euler(0, 90, 0), transform);
         }
         for (int i = 0; i < height; i++)
         {
             Instantiate(wall, new Vector3(i * uom + uom / 2, uom / 2, uom * width), Quaternion.Euler(0, 90, 0), transform);
+            Instantiate(UI_wall, new Vector3(i * uom + uom / 2, uom / 2, uom * width), Quaternion.Euler(0, 90, 0), transform);
         }
     }
 
@@ -73,10 +85,12 @@ public class LabrinthBuilder : MonoBehaviour
                 if (v.Vertical)
                 {
                     Instantiate(wall, aux, Quaternion.Euler(0, 90, 0), transform);
+                    Instantiate(UI_wall, aux, Quaternion.Euler(0, 90, 0), transform);
                 }
                 else
                 {
                     Instantiate(wall, aux, Quaternion.Euler(0, 0, 0), transform);
+                    Instantiate(UI_wall, aux, Quaternion.Euler(0, 0, 0), transform);
                 }
                 
             }
@@ -87,7 +101,12 @@ public class LabrinthBuilder : MonoBehaviour
 
     void placePlayer() //place player at center of maze
     {
-        player.position = new Vector3(width / 2 * uom,2, height / 2 * uom);
+        player.position = new Vector3(width / 2f * uom,2f, height / 2f * uom);
+    }
+    void placeCameraMinimap () //place player at center of maze
+    {
+        miniMapCamera.position = new Vector3(width / 2f * uom, 50, height / 2f * uom);
+        miniMapCamera.GetComponent<Camera>().orthographicSize = uom * uom / 2f + uom;
     }
     /*
     void placePilar()
@@ -106,13 +125,31 @@ public class LabrinthBuilder : MonoBehaviour
     {
         for(int i = 0; i < enemiesNumber; i++)
         {
-            Instantiate(enemySpawner, new Vector3(Random.Range(0,height)*uom,2, Random.Range(0, width) * uom), transform.rotation);
+            Instantiate(enemySpawner, new Vector3(Random.Range(0,height)*uom+(uom/2),2, Random.Range(0, width) * uom + (uom / 2)), transform.rotation);
+        }
+    }
+    void placeCoins()
+    {
+        for (int i = 0; i < coinsNumber; i++)
+        {
+            Instantiate(coin, new Vector3(Random.Range(0, height) * uom + (uom / 2), 2, Random.Range(0, width) * uom + (uom / 2)), transform.rotation);
+        }
+    }
+    void placeKeys()
+    {
+        for (int i = 0; i < keysNumber; i++)
+        {
+            Instantiate(key, new Vector3(Random.Range(0, height) * uom + (uom / 2), 2, Random.Range(0, width) * uom + (uom / 2)), transform.rotation);
         }
     }
 
+    void placeDoor() //place player at center of maze
+    {
+        Vector3 playerPos = player.position;
+        
+        Instantiate(door, new Vector3(playerPos.x, 0, playerPos.z + doorOffset), transform.rotation);
+    }
 
-
-    
 
 
     // Start is called before the first frame update
@@ -126,9 +163,14 @@ public class LabrinthBuilder : MonoBehaviour
         buildOuterWalls();
         buildLabr();
         placePlayer();
+        placeCameraMinimap();
         //placePilar();
 
-        placeEnemies(); 
+        placeDoor();
+        placeEnemies();
+        placeCoins();
+        placeKeys();
+
 
     }
 }

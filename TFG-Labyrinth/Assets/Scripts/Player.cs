@@ -64,4 +64,6 @@ public class Player : MonoBehaviour
         return pickedUpCoins;
     }
 
+
+    
 }
