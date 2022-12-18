@@ -6,6 +6,7 @@ using UnityEngine;
 public class LabrinthBuilder : MonoBehaviour
 {
     public GameObject wall;
+    public GameObject floor;
     public GameObject UI_wall;
     //public GameObject pilar;
     public GameObject enemySpawner;
@@ -99,6 +100,15 @@ public class LabrinthBuilder : MonoBehaviour
             
     }
 
+    void placeFloor()
+    {
+
+        GameObject go = Instantiate(floor, new Vector3(width / 2f * uom, 0, height / 2f * uom), Quaternion.identity);
+        go.transform.localScale = new Vector3(width*1.5f, 1, height*1.5f); // scales each wall size by 1.5 
+        Material m = go.GetComponent<Renderer>().sharedMaterial;
+        m.mainTextureScale = new Vector2(width, height);
+    }
+
     void placePlayer() //place player at center of maze
     {
         player.position = new Vector3(width / 2f * uom,2f, height / 2f * uom);
@@ -162,7 +172,9 @@ public class LabrinthBuilder : MonoBehaviour
 
         buildOuterWalls();
         buildLabr();
+        placeFloor();
         placePlayer();
+
         placeCameraMinimap();
         //placePilar();
 
