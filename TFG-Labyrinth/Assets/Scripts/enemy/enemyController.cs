@@ -1,32 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class enemyController : MonoBehaviour
 {
 
     
     public GameObject projectile;
+    public GameObject loot;
+    public GameObject enemyDead;
 
     public int health = 5;
 
-    public float speed = 4f;
-    public float distFromPlayerObj = 5f;
     public float shootRate = 2f;
     
     
     private GameObject player;
+    private Player playerStats;
+
+    private NavMeshAgent agent;
     
-    private float distFromPlayer;
     private float reloadTimeLeft;
 
     // Start is called before the first frame update
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-        distFromPlayer = Vector3.Magnitude(transform.position - player.transform.position);
         reloadTimeLeft = shootRate;
-        
+        playerStats = player.GetComponent<Player>();
+
+        agent = gameObject.GetComponent<NavMeshAgent>();
     }
 
     void shoot()
@@ -43,14 +47,12 @@ public class enemyController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (distFromPlayer > distFromPlayerObj)
+        if(player != null)
         {
-            transform.Translate(Vector3.forward * Time.deltaTime * speed);
+            agent.SetDestination(player.transform.position);
+            shoot();
         }
-
-        distFromPlayer = Vector3.Distance(transform.position, player.transform.position);
-        transform.LookAt(player.transform.position);
-        shoot();
+        
     }
 
 
@@ -61,6 +63,11 @@ public class enemyController : MonoBehaviour
 
         if (health <= 0)
         {
+            if (Random.Range(0f,1f) < playerStats.getPlayerLootChance())
+            {
+                Instantiate(loot, transform.position, transform.rotation);
+            }
+            Instantiate(enemyDead, transform.position - Vector3.up * 2.5f, transform.rotation);
             Destroy(gameObject);
         }
     }

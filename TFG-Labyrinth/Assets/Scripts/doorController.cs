@@ -8,8 +8,7 @@ public class doorController : MonoBehaviour
 
     public float sepacing = 0.5f;
 
-    public int keyAmmount = 3;
-
+    private int keyAmmount;
     private int keys = 0;
 
     private Stack<GameObject> keyHoles;
@@ -18,6 +17,7 @@ public class doorController : MonoBehaviour
     void Start()
     {
         keyHoles = new Stack<GameObject>();
+        keyAmmount = GameObject.FindGameObjectWithTag("GameController").GetComponent<LabrinthBuilder>().keysNumber;
 
         for(int i=0; i< keyAmmount; i++)
         {
