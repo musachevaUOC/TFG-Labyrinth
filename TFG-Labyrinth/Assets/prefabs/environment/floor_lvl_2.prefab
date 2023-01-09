@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2321159533253433711}
   - component: {fileID: 1941160532136380544}
   - component: {fileID: 3641198754731137958}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: floor_lvl_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: fbcf70d2581052549a1ecef385a73626, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

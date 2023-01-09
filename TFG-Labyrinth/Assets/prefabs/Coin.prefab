@@ -156,7 +156,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 2
+  m_Radius: 1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &3636422991588577276
 PrefabInstance:
@@ -238,3 +238,22 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 3636422991588577276}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &4518872532664611501 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 39c4c5beeb09924419b139b881fbc905,
+    type: 3}
+  m_PrefabInstance: {fileID: 3636422991588577276}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2790208217321704943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4518872532664611501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77ddbaec057ade94e8ddbb4883b8c395, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotVel: 30

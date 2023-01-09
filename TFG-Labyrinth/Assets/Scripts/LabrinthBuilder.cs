@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 
 public class LabrinthBuilder : MonoBehaviour
@@ -12,6 +13,7 @@ public class LabrinthBuilder : MonoBehaviour
     public GameObject enemySpawner;
     public GameObject coin;
     public GameObject door;
+    public GameObject upgrdStand;
     public GameObject key;
 
 
@@ -31,34 +33,39 @@ public class LabrinthBuilder : MonoBehaviour
     private LabrinthEngine labrinthEngine;
 
     //other adjustments
-    private float doorOffset = 4f;
+    private float doorOffset = 8f;
+
+    private List<GameObject> ListWalls;
+    private NavMeshData navMeshData;
+    private GameObject floorInstance;
 
     void buildOuterWalls()
     {
-        for (int i = 0; i < width; i++){
-            Instantiate(wall, new Vector3(0, uom / 2, i*uom+uom/2),Quaternion.Euler(0,0,0), transform);
+        for (int i = 0; i < width; i++)
+        {
+            ListWalls.Add(Instantiate(wall, new Vector3(0, uom / 2, i * uom + uom / 2), Quaternion.Euler(0, 0, 0), transform));
             Instantiate(UI_wall, new Vector3(0, uom / 2, i * uom + uom / 2), Quaternion.Euler(0, 0, 0), transform);
         }
         for (int i = 0; i < width; i++)
         {
-            Instantiate(wall, new Vector3(uom*height, uom / 2, i * uom + uom / 2), Quaternion.Euler(0, 0, 0), transform);
+            ListWalls.Add(Instantiate(wall, new Vector3(uom * height, uom / 2, i * uom + uom / 2), Quaternion.Euler(0, 0, 0), transform));
             Instantiate(UI_wall, new Vector3(uom * height, uom / 2, i * uom + uom / 2), Quaternion.Euler(0, 0, 0), transform);
         }
         for (int i = 0; i < height; i++)
         {
-            Instantiate(wall, new Vector3(i * uom + uom / 2, uom / 2, 0), Quaternion.Euler(0, 90, 0), transform);
+            ListWalls.Add(Instantiate(wall, new Vector3(i * uom + uom / 2, uom / 2, 0), Quaternion.Euler(0, 90, 0), transform));
             Instantiate(UI_wall, new Vector3(i * uom + uom / 2, uom / 2, 0), Quaternion.Euler(0, 90, 0), transform);
         }
         for (int i = 0; i < height; i++)
         {
-            Instantiate(wall, new Vector3(i * uom + uom / 2, uom / 2, uom * width), Quaternion.Euler(0, 90, 0), transform);
+            ListWalls.Add(Instantiate(wall, new Vector3(i * uom + uom / 2, uom / 2, uom * width), Quaternion.Euler(0, 90, 0), transform));
             Instantiate(UI_wall, new Vector3(i * uom + uom / 2, uom / 2, uom * width), Quaternion.Euler(0, 90, 0), transform);
         }
     }
 
     private bool isCenter(LabrinthEngine.vertex v) // used for leaveing space on center of the maze
     {
-        if(v.A.X > (width / 2) - centerSize && v.A.X < (width / 2) + centerSize)
+        if (v.A.X > (width / 2) - centerSize && v.A.X < (width / 2) + centerSize)
         {
             if (v.A.Y > (height / 2) - centerSize && v.A.Y < (height / 2) + centerSize)
             {
@@ -75,7 +82,7 @@ public class LabrinthBuilder : MonoBehaviour
         LabrinthEngine.vertex[] labVertices = labrinthEngine.getVertices();
         Vector3 offset = new Vector3(1, 0, 1); //offset the labirinth walls but not the height. 
 
-        foreach(LabrinthEngine.vertex v in labVertices)
+        foreach (LabrinthEngine.vertex v in labVertices)
         {
             if (!v.conected && !isCenter(v)) //if not connected and not in center, place a wall in between
             {
@@ -85,35 +92,39 @@ public class LabrinthBuilder : MonoBehaviour
 
                 if (v.Vertical)
                 {
-                    Instantiate(wall, aux, Quaternion.Euler(0, 90, 0), transform);
+                    ListWalls.Add(Instantiate(wall, aux, Quaternion.Euler(0, 90, 0), transform));
                     Instantiate(UI_wall, aux, Quaternion.Euler(0, 90, 0), transform);
                 }
                 else
                 {
-                    Instantiate(wall, aux, Quaternion.Euler(0, 0, 0), transform);
+                    ListWalls.Add(Instantiate(wall, aux, Quaternion.Euler(0, 0, 0), transform));
                     Instantiate(UI_wall, aux, Quaternion.Euler(0, 0, 0), transform);
                 }
-                
+
             }
         }
-        
-            
+
+
     }
 
     void placeFloor()
     {
 
         GameObject go = Instantiate(floor, new Vector3(width / 2f * uom, 0, height / 2f * uom), Quaternion.identity);
-        go.transform.localScale = new Vector3(width*1.5f, 1, height*1.5f); // scales each wall size by 1.5 
+        go.transform.localScale = new Vector3(width * 1.5f, 1, height * 1.5f); // scales each wall size by 1.5 
         Material m = go.GetComponent<Renderer>().sharedMaterial;
         m.mainTextureScale = new Vector2(width, height);
+
+        floorInstance = go;
     }
 
     void placePlayer() //place player at center of maze
     {
-        player.position = new Vector3(width / 2f * uom,2f, height / 2f * uom);
+        player.position = new Vector3(width / 2f * uom, 2f, height / 2f * uom);
+        Player.inst.getCharacterController().enabled = true;
+        Player.inst.getPlayerMovementController().enabled = true;
     }
-    void placeCameraMinimap () //place player at center of maze
+    void placeCameraMinimap() //place player at center of maze
     {
         miniMapCamera.position = new Vector3(width / 2f * uom, 50, height / 2f * uom);
         miniMapCamera.GetComponent<Camera>().orthographicSize = uom * uom / 2f + uom;
@@ -133,9 +144,9 @@ public class LabrinthBuilder : MonoBehaviour
 
     void placeEnemies()
     {
-        for(int i = 0; i < enemiesNumber; i++)
+        for (int i = 0; i < enemiesNumber; i++)
         {
-            Instantiate(enemySpawner, new Vector3(Random.Range(0,height)*uom+(uom/2),2, Random.Range(0, width) * uom + (uom / 2)), transform.rotation);
+            Instantiate(enemySpawner, new Vector3(Random.Range(0, height) * uom + (uom / 2), -1, Random.Range(0, width) * uom + (uom / 2)), transform.rotation);
         }
     }
     void placeCoins()
@@ -156,8 +167,42 @@ public class LabrinthBuilder : MonoBehaviour
     void placeDoor() //place player at center of maze
     {
         Vector3 playerPos = player.position;
-        
+
         Instantiate(door, new Vector3(playerPos.x, 0, playerPos.z + doorOffset), transform.rotation);
+    }
+
+    void placeUpgradeStand() //place player at center of maze
+    {
+        Vector3 playerPos = player.position;
+
+        Instantiate(upgrdStand, new Vector3(playerPos.x, 0.8f, playerPos.z - doorOffset), transform.rotation);
+    }
+
+    void navigationMesh()
+    {
+        NavMesh.RemoveAllNavMeshData();
+        List<NavMeshBuildSource> sources = new List<NavMeshBuildSource>();
+        NavMeshBuildSource nmbsr;
+
+        nmbsr = new NavMeshBuildSource();
+        nmbsr.transform = floorInstance.transform.localToWorldMatrix;
+        nmbsr.shape = NavMeshBuildSourceShape.Mesh;
+        nmbsr.sourceObject = floorInstance.GetComponent<MeshFilter>().sharedMesh;
+        sources.Add(nmbsr);
+
+        foreach (GameObject w in ListWalls)
+        {
+            nmbsr = new NavMeshBuildSource();
+            nmbsr.transform = w.transform.localToWorldMatrix;
+            nmbsr.shape = NavMeshBuildSourceShape.Mesh;
+            nmbsr.sourceObject = w.GetComponent<MeshFilter>().sharedMesh;
+            sources.Add(nmbsr);
+        }
+        
+        NavMeshData nmd = NavMeshBuilder.BuildNavMeshData(NavMesh.GetSettingsByID(0), sources,new Bounds(player.position, Vector3.one*uom*width), Vector3.zero, Quaternion.identity);
+        navMeshData = nmd;
+        NavMesh.AddNavMeshData(nmd);
+
     }
 
 
@@ -165,9 +210,10 @@ public class LabrinthBuilder : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        player = Player.inst.transform;
         uom = wall.transform.localScale.z;
         labrinthEngine = new LabrinthEngine(width, height, 0, 50);
+        ListWalls = new List<GameObject>();
 
 
         buildOuterWalls();
@@ -178,11 +224,14 @@ public class LabrinthBuilder : MonoBehaviour
         placeCameraMinimap();
         //placePilar();
 
+
         placeDoor();
         placeEnemies();
         placeCoins();
         placeKeys();
-
+        placeUpgradeStand();
+        navigationMesh();
 
     }
+
 }

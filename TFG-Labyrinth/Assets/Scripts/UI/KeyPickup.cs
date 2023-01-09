@@ -11,7 +11,7 @@ public class KeyPickup : MonoBehaviour
     {
         if(player == null)
         {
-            player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+            player = Player.inst;
         }
     }
 
@@ -22,6 +22,7 @@ public class KeyPickup : MonoBehaviour
         if(other.gameObject.tag == "Player")
         {
             player.pickUpKey();
+            AudioController.inst.playKeyPickup();
             Destroy(gameObject);
         }
     }

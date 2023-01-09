@@ -34,7 +34,10 @@ public class enemyProjectile : MonoBehaviour
             Player player = other.GetComponent<Player>();
             player.hit(damage);
         }
+        if (other.tag != "Enemy") { 
+            Destroy(gameObject);
+        }
 
-        Destroy(gameObject);
+        
     }
 }
